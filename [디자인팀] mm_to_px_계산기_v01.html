@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI 인포그래픽 사이즈 계산기</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<style>
+:root{
+  --hm-green:#249473;
+  --hm-green-dark:#205241;
+  --hm-orange:#CC5200;
+  --panel:#ffffffee;
+  --bg:#f7faf9;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:"Pretendard","NanumSquare","KoPubDotum",sans-serif;
+  background:linear-gradient(180deg,#ffffff,#f3f8f6);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#1d1d1d;
+  padding:24px;
+}
+.container{
+  width:min(1100px,100%);
+}
+.card{
+  background:var(--panel);
+  border-radius:20px;
+  padding:28px;
+  box-shadow:0 10px 24px rgba(0,0,0,0.06);
+  border:1px solid rgba(36,148,115,0.15);
+  backdrop-filter:blur(6px);
+}
+.topbar{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:14px;
+}
+.credit{
+  font-size:11px;
+  color:#9a9a9a;
+  letter-spacing:0.02em;
+}
+.layout{
+  display:grid;
+  grid-template-columns:minmax(320px, 420px) minmax(320px, 1fr);
+  gap:24px;
+  align-items:start;
+}
+.panel{
+  background:#fff;
+  border:1px solid rgba(36,148,115,0.14);
+  border-radius:16px;
+  padding:24px;
+  min-height:100%;
+}
+h1{
+  font-size:22px;
+  font-weight:700;
+  margin:0 0 6px 0;
+  color:var(--hm-green-dark);
+}
+.subtitle{
+  font-size:12px;
+  color:#6b6b6b;
+  margin-bottom:18px;
+}
+label{
+  font-size:13px;
+  font-weight:600;
+  color:#333;
+  display:block;
+  margin-top:14px;
+}
+input,select{
+  width:100%;
+  height:56px;
+  padding:0 16px;
+  border-radius:10px;
+  border:1px solid #e3e6e8;
+  margin-top:6px;
+  font-size:14px;
+  background:white;
+}
+button{
+  margin-top:20px;
+  width:100%;
+  height:56px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(135deg,var(--hm-green),var(--hm-green-dark));
+  color:white;
+  font-weight:600;
+  font-size:15px;
+  cursor:pointer;
+  box-shadow:0 4px 10px rgba(36,148,115,0.25);
+}
+button:hover{opacity:0.95;}
+.result{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.result-empty{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100%;
+  color:#6f7b76;
+  font-size:14px;
+  line-height:1.7;
+  border:1px dashed rgba(36,148,115,0.25);
+  border-radius:14px;
+  padding:24px;
+  background:#fbfdfc;
+}
+.section{
+  padding:16px 18px;
+  border-radius:14px;
+  background:#ffffffcc;
+  border:1px solid rgba(36,148,115,0.18);
+  box-shadow:0 6px 16px rgba(0,0,0,0.04);
+  font-size:13px;
+  line-height:1.8;
+}
+.section b,
+.section-title{
+  color:var(--hm-green-dark);
+}
+.section-title{
+  display:block;
+  margin-bottom:6px;
+  font-size:14px;
+}
+.copy{
+  font-size:11px;
+  color:var(--hm-orange);
+  cursor:pointer;
+  font-weight:600;
+  white-space:nowrap;
+  margin-left:8px;
+}
+.small{
+  font-size:11px;
+  color:#777;
+}
+.kv{
+  font-size:22px;
+  font-weight:700;
+  line-height:1.35;
+}
+.inline-value{
+  display:flex;
+  align-items:center;
+  gap:0;
+  flex-wrap:wrap;
+}
+.history-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+.history-clear{
+  font-size:11px;
+  color:#8b8b8b;
+  cursor:pointer;
+  font-weight:600;
+}
+.history-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.history-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid rgba(36,148,115,0.14);
+  background:#fcfefd;
+}
+.history-meta{
+  min-width:0;
+}
+.history-main{
+  font-size:13px;
+  font-weight:600;
+  color:#27332f;
+}
+.history-sub{
+  font-size:11px;
+  color:#7b8480;
+}
+.history-action{
+  flex-shrink:0;
+  font-size:11px;
+  color:var(--hm-orange);
+  cursor:pointer;
+  font-weight:600;
+}
+@media (max-width: 860px){
+  .layout{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="topbar">
+      <div class="credit">make by HANMAC DESIGN x GPT</div>
+    </div>
+    <div class="layout">
+      <div class="panel">
+        <h1>AI Infographic Size Calculator</h1>
+        <div class="subtitle">mm → px · ratio helper</div>
+
+        <label>가로 (mm)</label>
+        <input type="number" id="widthMM" placeholder="예: 170">
+
+        <label>세로 (mm)</label>
+        <input type="number" id="heightMM" placeholder="예: 50">
+
+        <label>PPI</label>
+        <select id="ppi">
+          <option value="72">72 (web)</option>
+          <option value="150">150</option>
+          <option value="200" selected>200</option>
+          <option value="300">300 (print)</option>
+        </select>
+
+        <button onclick="convert()">사이즈 계산</button>
+      </div>
+
+      <div class="panel">
+        <div class="result" id="result">
+          <div class="result-empty">
+            왼쪽에서 mm와 PPI를 입력한 뒤<br>사이즈 계산 버튼을 눌러주세요.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const HISTORY_KEY = 'hm_mm_to_px_history';
+const HISTORY_LIMIT = 5;
+
+function gcd(a,b){
+  return b ? gcd(b, a % b) : a;
+}
+
+function copyText(text){
+  navigator.clipboard.writeText(text);
+  alert('복사됨: ' + text);
+}
+
+function getHistory(){
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveHistory(item){
+  const history = getHistory().filter(entry => !(entry.widthMM === item.widthMM && entry.heightMM === item.heightMM && entry.ppi === item.ppi));
+  history.unshift(item);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, HISTORY_LIMIT)));
+}
+
+function clearHistory(){
+  localStorage.removeItem(HISTORY_KEY);
+  renderResult(window.lastResultData || null);
+}
+
+function loadHistoryItem(index){
+  const history = getHistory();
+  const item = history[index];
+  if(!item) return;
+  document.getElementById('widthMM').value = item.widthMM;
+  document.getElementById('heightMM').value = item.heightMM;
+  document.getElementById('ppi').value = item.ppi;
+  convert();
+}
+
+function renderHistory(){
+  const history = getHistory();
+  if(!history.length){
+    return '';
+  }
+
+  const items = history.map((item, index) => `
+    <div class='history-item'>
+      <div class='history-meta'>
+        <div class='history-main'>${item.widthMM} × ${item.heightMM}mm · ${item.ppi}ppi</div>
+        <div class='history-sub'>${item.widthPX} × ${item.heightPX}px · ${item.ratio}</div>
+      </div>
+      <span class='history-action' onclick='loadHistoryItem(${index})'>불러오기</span>
+    </div>
+  `).join('');
+
+  return `
+    <div class='section'>
+      <div class='history-header'>
+        <span class='section-title'><b>최근 계산값 <span class="small">(최대 5개까지 보관)</span></b></span>
+        <span class='history-clear' onclick='clearHistory()'>전체삭제</span>
+      </div>
+      <div class='history-list'>${items}</div>
+    </div>
+  `;
+}
+
+function renderResult(data){
+  const result = document.getElementById('result');
+
+  if(!data){
+    result.innerHTML = `
+      <div class='result-empty'>
+        왼쪽에서 mm와 PPI를 입력한 뒤<br>사이즈 계산 버튼을 눌러주세요.
+      </div>
+      ${renderHistory()}
+    `;
+    return;
+  }
+
+  result.innerHTML = `
+    <div class='section'>
+      <span class='section-title'><b>PX 결과 (${data.ppi}ppi)</b></span>
+      <div class='inline-value'>
+        <div class='kv'>${data.widthPXRound} × ${data.heightPXRound}px</div>
+        <span class='copy' onclick="copyText('${data.widthPXRound}x${data.heightPXRound}')">copy</span>
+      </div>
+    </div>
+
+    <div class='section'>
+      <span class='section-title'><b>정확 계산값</b></span>
+      ${data.widthPXExact} × ${data.heightPXExact} px
+    </div>
+
+    <div class='section'>
+      <span class='section-title'><b>AI 추천 비율값</b></span>
+      <span class='small'>Midjourney</span><br>
+      ${data.midjourneyAR}
+      <span class='copy' onclick="copyText('${data.midjourneyAR}')">copy</span>
+      <br><br>
+      <span class='small'>Nano Banana</span><br>
+      ${data.nanoBananaRatio}
+      <span class='copy' onclick="copyText('${data.nanoBananaRatio}')">copy</span>
+    </div>
+
+    ${renderHistory()}
+  `;
+}
+
+function convert(){
+  const widthMM = parseFloat(document.getElementById('widthMM').value);
+  const heightMM = parseFloat(document.getElementById('heightMM').value);
+  const ppi = parseFloat(document.getElementById('ppi').value);
+
+  if(!widthMM || !heightMM){
+    alert('mm 값을 입력하세요');
+    return;
+  }
+
+  const widthPX = (widthMM / 25.4) * ppi;
+  const heightPX = (heightMM / 25.4) * ppi;
+  const widthRound = Math.round(widthPX);
+  const heightRound = Math.round(heightPX);
+
+  const rw = Math.round(widthMM);
+  const rh = Math.round(heightMM);
+  const g = gcd(rw, rh);
+  const arW = rw / g;
+  const arH = rh / g;
+  const aspectRatioText = `${arW}:${arH}`;
+  const midjourneyAR = `--ar ${aspectRatioText}`;
+  const nanoBananaRatio = aspectRatioText;
+
+  const data = {
+    widthMM,
+    heightMM,
+    ppi,
+    widthPXRound: widthRound,
+    heightPXRound: heightRound,
+    widthPXExact: widthPX.toFixed(2),
+    heightPXExact: heightPX.toFixed(2),
+    midjourneyAR,
+    nanoBananaRatio
+  };
+
+  window.lastResultData = data;
+
+  saveHistory({
+    widthMM,
+    heightMM,
+    ppi,
+    widthPX: `${widthRound} × ${heightRound}px`,
+    ratio: aspectRatioText
+  });
+
+  renderResult(data);
+}
+
+renderResult(null);
+</script>
+</body>
+</html>
